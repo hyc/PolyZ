@@ -1,0 +1,31 @@
+PolyZ - Compression Library Wrapper
+
+These are two small wrappers that emulate the snappy and zlib APIs.
+It allows a program that was only written to support snappy or zlib
+to be used with some other compression library instead.
+
+The snappy wrapper can serve as a frontend for bzip2, lz4, lz4hc,
+lzma, lzo, and zlib.
+
+The zlib wrapper can serve as a frontend for bzip2, lz4, lz4hc,
+lzma, lzo, and snappy.
+
+The POLYZ environment variable must be set to the name of the desired
+compressor and support for the library must have been compiled in
+otherwise the wrapper will call exit() and end the process.
+
+Typically the wrapper will be used with LD_PRELOAD to allow it to
+override any other compression library a program may have been linked
+against. Both the wrapper library and the chosen compressor library
+must be preloaded together, the wrapper doesn't use dlopen() to find
+the compressor.
+
+E.g., to use bzip2 in a program that only supports snappy:
+	export LD_PRELOAD=libpzsnap.so:libbz2.so
+	export POLYZ=bzip2
+
+Or to use lzma in a program that only supports zlib:
+	export LD_PRELOAD=libpzlib.so:liblzma.so
+	export POLYZ=lzma
+
+
