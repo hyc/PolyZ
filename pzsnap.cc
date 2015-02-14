@@ -143,8 +143,10 @@ static size_t lzma_bfunc(size_t len) {
 }
 
 static void lzma_cfunc(const char *in, size_t inlen, char *out, size_t *outlen) {
+	size_t outl = *outlen;
+	*outlen = 0;
 	lzma_easy_buffer_encode(2, LZMA_CHECK_NONE,  NULL, (uint8_t *)in, inlen,
-		(uint8_t *)out, outlen, *outlen);
+		(uint8_t *)out, outlen, outl);
 }
 
 static bool lzma_ufunc(const char *in, size_t inlen, char *out) {
