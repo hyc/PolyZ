@@ -42,7 +42,7 @@ int compress2(Bytef *out, uLongf *outlen, const Bytef *in, uLong inlen, int leve
 }
 
 int compress(Bytef *out, uLongf *outlen, const Bytef *in, uLong inlen) {
-	return codec->comp(out, outlen, in, inlen, Z_DEFAULT_COMPRESSION);
+	return compress2(out, outlen, in, inlen, Z_DEFAULT_COMPRESSION);
 }
 
 int uncompress(Bytef *out, uLongf *outlen, const Bytef *in, uLong inlen) {
