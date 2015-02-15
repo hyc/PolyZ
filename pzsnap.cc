@@ -76,11 +76,11 @@ extern "C" {
 #if USE_BZIP2
 #include <bzlib.h>
 static size_t bzip2_bfunc(size_t len) {
-	return len + 16;
+	return len * 101 / 100 + 600;
 }
 
 static void bzip2_cfunc(const char *in, size_t inlen, char *out, size_t *outlen) {
-	unsigned int destlen = *outlen;
+	unsigned int destlen = bzip2_bfunc(inlen);
 	BZ2_bzBuffToBuffCompress(out, &destlen, (char *)in, inlen, 9, 0, 0);
 	*outlen = destlen;
 }
@@ -88,9 +88,11 @@ static void bzip2_cfunc(const char *in, size_t inlen, char *out, size_t *outlen)
 static bool bzip2_ufunc(const char *in, size_t inlen, char *out) {
 	size_t origlen;
 	unsigned int destlen;
+	int rc;
 	memcpy(&origlen, in-sizeof(size_t), sizeof(size_t));
 	destlen = origlen;
-	return BZ2_bzBuffToBuffDecompress(out, &destlen, (char *)in, inlen, 0, 0) == BZ_OK;
+	rc = BZ2_bzBuffToBuffDecompress(out, &destlen, (char *)in, inlen, 0, 0);
+	return rc == BZ_OK;
 }
 
 static const codec_t c_bzip2 = {
@@ -143,7 +145,7 @@ static size_t lzma_bfunc(size_t len) {
 }
 
 static void lzma_cfunc(const char *in, size_t inlen, char *out, size_t *outlen) {
-	size_t outl = *outlen;
+	size_t outl = lzma_stream_buffer_bound(inlen);
 	*outlen = 0;
 	lzma_easy_buffer_encode(2, LZMA_CHECK_NONE,  NULL, (uint8_t *)in, inlen,
 		(uint8_t *)out, outlen, outl);
@@ -205,6 +207,7 @@ static size_t zlib_bfunc(size_t len) {
 }
 
 static void zlib_cfunc(const char *in, size_t inlen, char *out, size_t *outlen) {
+	*outlen = compressBound(inlen);
 	compress((Bytef *)out, outlen, (Bytef *)in, inlen);
 }
 
